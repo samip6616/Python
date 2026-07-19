@@ -1,0 +1,407 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Lab: Minimax and Alpha-Beta Pruning</title>
+<meta name="identifier" content="gfdfa25921d5a302cce0e0b18469acb94"/>
+<meta name="editing_roles" content="teachers"/>
+<meta name="workflow_state" content="active"/>
+</head>
+<body>
+<div class="header">
+<h1>Lab: Minimax Algorithm and Alpha-Beta Pruning</h1>
+<p>CSC 266: Artificial Intelligence</p>
+<p>Game Playing | Chapter 3.3</p>
+</div>
+<div class="note-box"><strong>Lab Objectives:</strong>
+<ul>
+<li>Understand how the Minimax algorithm works for two-player games</li>
+<li>Learn the algorithm steps and pseudocode</li>
+<li>Implement Minimax on a game tree</li>
+<li>Understand Alpha-Beta pruning and its efficiency</li>
+<li>Compare Minimax with and without pruning</li>
+</ul>
+</div>
+<hr>
+<h2 class="section-title">Part 1: Background</h2>
+<div class="card">
+<h3><span class="badge">1</span> What is Minimax Algorithm?</h3>
+<div class="theory-box">
+<p><strong>Definition:</strong> Minimax is a recursive algorithm used for decision-making in two-player zero-sum games. It assumes both players play optimally – MAX tries to maximize the score, MIN tries to minimize it.</p>
+</div>
+<div class="theory-box">
+<p><strong>Key Terminology:</strong></p>
+<ul>
+<li><strong>MAX Player:</strong> The player we are helping (tries to maximize the score)</li>
+<li><strong>MIN Player:</strong> The opponent (tries to minimize the score)</li>
+<li><strong>Terminal states:</strong> End of the game (win, loss, or draw)</li>
+<li><strong>Utility values:</strong> Numbers assigned to terminal states (e.g., +1 for win, -1 for loss, 0 for draw)</li>
+</ul>
+</div>
+<div class="tree"><strong>🌲 Example Game Tree:</strong>
+<pre>                    MAX
+                   /   \
+                  /     \
+                 /       \
+               MIN       MIN
+              /   \     /   \
+            MAX   MAX  MAX   MAX
+           /  \  /  \ /  \  /  \
+          5   3 8   2 7   4 9   1</pre>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 2: Algorithm and Pseudocode</h2>
+<div class="card">
+<h3><span class="badge">2</span> Minimax Algorithm</h3>
+<div class="step-box">
+<p><strong>Algorithm Steps:</strong></p>
+<ol>
+<li>Generate the complete game tree from the current state.</li>
+<li>Assign utility values to the leaf nodes (terminal states).</li>
+<li>Propagate values upward using the minimax rule:
+<ul>
+<li>At MAX nodes: value = maximum of children's values</li>
+<li>At MIN nodes: value = minimum of children's values</li>
+</ul>
+</li>
+<li>The value at the root is the best outcome MAX can guarantee.</li>
+<li>The move that leads to that child is the optimal move.</li>
+</ol>
+</div>
+<div class="step-box">
+<p><strong>Pseudocode:</strong></p>
+<div class="code-box">
+<pre>function MINIMAX(node, depth, isMaximizingPlayer):
+    if node is terminal:
+        return utility(node)
+
+    if isMaximizingPlayer:
+        best = -∞
+        for each child of node:
+            value = MINIMAX(child, depth+1, False)
+            best = max(best, value)
+        return best
+    else:
+        best = +∞
+        for each child of node:
+            value = MINIMAX(child, depth+1, True)
+            best = min(best, value)
+        return best</pre>
+</div>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 3: Alpha-Beta Pruning</h2>
+<div class="card">
+<h3><span class="badge">3</span> What is Alpha-Beta Pruning?</h3>
+<div class="theory-box">
+<p><strong>Definition:</strong> Alpha-Beta pruning is an optimization technique for minimax that cuts off branches that cannot affect the final decision. It makes the search faster without changing the result.</p>
+</div>
+<div class="theory-box">
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>α (Alpha):</strong> Best value that MAX can guarantee so far (starts at -∞)</li>
+<li><strong>β (Beta):</strong> Best value that MIN can guarantee so far (starts at +∞)</li>
+</ul>
+<p><strong>Pruning Rules:</strong></p>
+<ul>
+<li>At a MAX node: If α ≥ β, prune remaining branches</li>
+<li>At a MIN node: If β ≤ α, prune remaining branches</li>
+</ul>
+</div>
+<div class="step-box">
+<p><strong>Pseudocode:</strong></p>
+<div class="code-box">
+<pre>function ALPHA_BETA(node, depth, α, β, isMaximizingPlayer):
+    if node is terminal:
+        return utility(node)
+
+    if isMaximizingPlayer:
+        best = -∞
+        for each child of node:
+            value = ALPHA_BETA(child, depth+1, α, β, False)
+            best = max(best, value)
+            α = max(α, best)
+            if β &lt;= α:
+                break  // Prune
+        return best
+    else:
+        best = +∞
+        for each child of node:
+            value = ALPHA_BETA(child, depth+1, α, β, True)
+            best = min(best, value)
+            β = min(β, best)
+            if β &lt;= α:
+                break  // Prune
+        return best</pre>
+</div>
+</div>
+<div class="theory-box">
+<p><strong>Benefits of Alpha-Beta Pruning:</strong></p>
+<ul>
+<li>Evaluates fewer nodes (up to 50% less with optimal ordering)</li>
+<li>Same result as minimax (no accuracy loss)</li>
+<li>Allows deeper search within the same time constraints</li>
+</ul>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 4: Code</h2>
+<div class="card">
+<h3><span class="badge">4</span> Complete Python Code</h3>
+<div class="code-box">
+<pre># Lab: Minimax Algorithm and Alpha-Beta Pruning
+# Program by: [Your Name]
+# Roll no: [Your Roll No]
+
+# Step 1: Define the game tree
+# Leaf nodes are terminal states with utility values
+game_tree = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F', 'G'],
+    'D': [5, 3],   # Leaf values
+    'E': [8, 2],   # Leaf values
+    'F': [7, 4],   # Leaf values
+    'G': [9, 1]    # Leaf values
+}
+
+# Step 2: Minimax without pruning
+def minimax(node, is_maximizing):
+    # If leaf node, return the value directly
+    if isinstance(node, int):
+        return node
+    
+    if is_maximizing:
+        best = -999999
+        for child in game_tree[node]:
+            value = minimax(child, False)
+            best = max(best, value)
+        return best
+    else:
+        best = 999999
+        for child in game_tree[node]:
+            value = minimax(child, True)
+            best = min(best, value)
+        return best
+
+# Step 3: Minimax with Alpha-Beta Pruning
+def alpha_beta(node, is_maximizing, alpha, beta):
+    # If leaf node, return the value directly
+    if isinstance(node, int):
+        return node
+    
+    if is_maximizing:
+        best = -999999
+        for child in game_tree[node]:
+            value = alpha_beta(child, False, alpha, beta)
+            best = max(best, value)
+            alpha = max(alpha, best)
+            if beta &lt;= alpha:
+                break  # Prune
+        return best
+    else:
+        best = 999999
+        for child in game_tree[node]:
+            value = alpha_beta(child, True, alpha, beta)
+            best = min(best, value)
+            beta = min(beta, best)
+            if beta &lt;= alpha:
+                break  # Prune
+        return best
+
+# Step 4: Display the game tree
+print("=" * 70)
+print("GAME TREE")
+print("=" * 70)
+print()
+print("                    MAX")
+print("                   /   \\")
+print("                  /     \\")
+print("                 /       \\")
+print("               MIN       MIN")
+print("              /   \\     /   \\")
+print("            MAX   MAX  MAX   MAX")
+print("           /  \\  /  \\ /  \\  /  \\")
+print("          5   3 8   2 7   4 9   1")
+print()
+
+# Step 5: Run Minimax without pruning
+print("=" * 70)
+print("MINIMAX WITHOUT PRUNING")
+print("=" * 70)
+root_value = minimax('A', True)
+print()
+print("Root Value (Best for MAX):", root_value)
+print()
+print("Explanation:")
+print("  - D = max(5,3) = 5")
+print("  - E = max(8,2) = 8")
+print("  - F = max(7,4) = 7")
+print("  - G = max(9,1) = 9")
+print("  - B = min(5,8) = 5")
+print("  - C = min(7,9) = 7")
+print("  - A = max(5,7) = 7")
+
+# Step 6: Run Minimax with Alpha-Beta Pruning
+print()
+print("=" * 70)
+print("MINIMAX WITH ALPHA-BETA PRUNING")
+print("=" * 70)
+root_value_pruned = alpha_beta('A', True, -999999, 999999)
+print()
+print("Root Value (Best for MAX):", root_value_pruned)
+print()
+print("Alpha-Beta pruned branches that cannot affect the final decision.")
+print("Result is the same as minimax but faster.")
+
+# Step 7: Compare results
+print()
+print("=" * 70)
+print("COMPARISON")
+print("=" * 70)
+print()
+print("Both algorithms found the same root value:", root_value)
+print("Alpha-Beta pruning is more efficient.")
+</pre>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 5: Expected Output</h2>
+<div class="card">
+<h3><span class="badge">5</span> Program Output</h3>
+<div class="output-box">
+<pre>======================================================================
+GAME TREE
+======================================================================
+
+                    MAX
+                   /   \
+                  /     \
+                 /       \
+               MIN       MIN
+              /   \     /   \
+            MAX   MAX  MAX   MAX
+           /  \  /  \ /  \  /  \
+          5   3 8   2 7   4 9   1
+
+======================================================================
+MINIMAX WITHOUT PRUNING
+======================================================================
+
+Root Value (Best for MAX): 7
+
+Explanation:
+  - D = max(5,3) = 5
+  - E = max(8,2) = 8
+  - F = max(7,4) = 7
+  - G = max(9,1) = 9
+  - B = min(5,8) = 5
+  - C = min(7,9) = 7
+  - A = max(5,7) = 7
+
+======================================================================
+MINIMAX WITH ALPHA-BETA PRUNING
+======================================================================
+
+Root Value (Best for MAX): 7
+
+Alpha-Beta pruned branches that cannot affect the final decision.
+Result is the same as minimax but faster.
+
+======================================================================
+COMPARISON
+======================================================================
+
+Both algorithms found the same root value: 7
+Alpha-Beta pruning is more efficient.
+</pre>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 6: Tasks</h2>
+<div class="card">
+<h3><span class="badge">6</span> Complete the Following Tasks</h3>
+<div class="step-box">
+<p><strong>Task 1:</strong> Write the Minimax algorithm steps in your own words.</p>
+<p><strong>Task 2:</strong> Write the pseudocode for Minimax and Alpha-Beta Pruning.</p>
+<p><strong>Task 3:</strong> Run the program and record the output.</p>
+<p><strong>Task 4:</strong> Draw the game tree on paper with all values.</p>
+<p><strong>Task 5:</strong> Manually calculate the minimax values for all nodes.</p>
+<p><strong>Task 6:</strong> Create your own game tree with depth 4 and 16 leaves. Run Minimax and Alpha-Beta.</p>
+<p><strong>Task 7:</strong> Compare the number of nodes evaluated by Minimax vs Alpha-Beta.</p>
+<p><strong>Task 8:</strong> Answer the analysis questions below.</p>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 7: Analysis Questions</h2>
+<div class="card">
+<h3><span class="badge">7</span> Answer the Following Questions</h3>
+<div class="step-box">
+<p><strong>Question 1:</strong> What is the Minimax algorithm used for? Explain with an example.</p>
+</div>
+<div class="step-box">
+<p><strong>Question 2:</strong> What is the value of the root node in the given game tree? Which branch should MAX choose?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 3:</strong> What is Alpha-Beta pruning? Why is it useful?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 4:</strong> In the given game tree, which leaf nodes are pruned by Alpha-Beta?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 5:</strong> What is the time complexity of Minimax? How does Alpha-Beta improve it?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 6:</strong> What are α (Alpha) and β (Beta)? What are their initial values?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 7:</strong> How does the order of node evaluation affect Alpha-Beta pruning?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 8:</strong> In a game like chess, why is Alpha-Beta pruning essential?</p>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 8: Sample Answers (For Reference)</h2>
+<div class="card">
+<h3><span class="badge">A1</span> Question 1 Sample Answer</h3>
+<div class="step-box">
+<p>The Minimax algorithm is used for decision-making in two-player games where players have conflicting goals. It assumes both players play optimally – MAX tries to maximize the score and MIN tries to minimize it. Example: Chess, tic-tac-toe.</p>
+</div>
+<h3><span class="badge">A2</span> Question 2 Sample Answer</h3>
+<div class="step-box">
+<p>The root value is 7. MAX should choose the RIGHT branch (C) which has value 7.</p>
+</div>
+<h3><span class="badge">A3</span> Question 3 Sample Answer</h3>
+<div class="step-box">
+<p>Alpha-Beta pruning is an optimization technique for minimax that prunes branches that cannot affect the final decision. It makes the search faster without changing the result.</p>
+</div>
+<h3><span class="badge">A4</span> Question 4 Sample Answer</h3>
+<div class="step-box">
+<p>In the given game tree, with left-to-right evaluation, leaves 2 and 1 are pruned. (The exact pruned leaves may vary based on the implementation.)</p>
+</div>
+<h3><span class="badge">A5</span> Question 5 Sample Answer</h3>
+<div class="step-box">
+<p><strong>Minimax Time Complexity:</strong> O(b^m). <strong>Alpha-Beta improves</strong> it to O(b^(m/2)) in the best case with optimal ordering.</p>
+</div>
+<h3><span class="badge">A6</span> Question 6 Sample Answer</h3>
+<div class="step-box">
+<p><strong>α (Alpha):</strong> Best value for MAX (starts at -∞). <strong>β (Beta):</strong> Best value for MIN (starts at +∞).</p>
+</div>
+<h3><span class="badge">A7</span> Question 7 Sample Answer</h3>
+<div class="step-box">
+<p>Better ordering leads to more pruning. For MAX nodes, evaluate larger values first. For MIN nodes, evaluate smaller values first.</p>
+</div>
+<h3><span class="badge">A8</span> Question 8 Sample Answer</h3>
+<div class="step-box">
+<p>In chess, the game tree is enormous (branching factor ≈ 35). Alpha-Beta pruning is essential to make the search feasible by reducing the number of nodes evaluated.</p>
+</div>
+</div>
+<hr>
+<div class="footer">
+<p>Best of luck!</p>
+<p>Remember: Minimax = MAX chooses max, MIN chooses min. Alpha-Beta prunes the rest!</p>
+</div>
+</body>
+</html>
