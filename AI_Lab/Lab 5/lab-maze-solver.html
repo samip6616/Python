@@ -1,0 +1,402 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Lab: Maze Solver</title>
+<meta name="identifier" content="g59d0bd4676f91f165cf50d5c30864a9b"/>
+<meta name="editing_roles" content="teachers"/>
+<meta name="workflow_state" content="active"/>
+</head>
+<body>
+<div class="header">
+<h1>Lab: Maze Solver (BFS &amp; DFS)</h1>
+<p>CSC 266: Artificial Intelligence</p>
+<p>Search Algorithms | Chapter 3.1</p>
+</div>
+<div class="note-box"><strong>Lab Objectives:</strong>
+<ul>
+<li>Understand maze solving as a search problem</li>
+<li>Implement BFS to find the shortest path</li>
+<li>Implement DFS to find any path</li>
+<li>Compare the performance of BFS and DFS</li>
+<li>Visualize the maze and the solution path</li>
+</ul>
+</div>
+<hr>
+<h2 class="section-title">Part 1: Background</h2>
+<div class="card">
+<h3><span class="badge">1</span> Maze Solving as a Search Problem</h3>
+<div class="theory-box">
+<p><strong>Problem Statement:</strong> Given a maze grid with walls, find a path from the start position to the goal position.</p>
+<p><strong>Maze Representation:</strong></p>
+<ul>
+<li><strong>0</strong> = Open path (walkable)</li>
+<li><strong>1</strong> = Wall (blocked)</li>
+<li><strong>S</strong> = Start position</li>
+<li><strong>G</strong> = Goal position</li>
+</ul>
+</div>
+<div class="step-box">
+<p><strong>Example Maze (5×5):</strong></p>
+<pre style="background: #f5f5f5; padding: 10px; text-align: center;">S 0 0 1 0
+1 1 0 1 0
+0 0 0 0 0
+0 1 1 1 0
+0 0 0 0 G
+</pre>
+<p><strong>Legend:</strong> S=Start, G=Goal, 0=Path, 1=Wall</p>
+</div>
+<div class="theory-box">
+<p><strong>Search Algorithms:</strong></p>
+<ul>
+<li><strong>BFS:</strong> Finds the <strong>shortest path</strong> (minimum number of steps)</li>
+<li><strong>DFS:</strong> Finds <strong>any path</strong> (may not be the shortest)</li>
+</ul>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 2: Algorithm</h2>
+<div class="card">
+<h3><span class="badge">2</span> BFS and DFS for Maze Solving</h3>
+<div class="step-box">
+<p><strong>BFS Algorithm Steps:</strong></p>
+<ol>
+<li>Start at the start position. Add it to a queue.</li>
+<li>While the queue is not empty:
+<ol type="a">
+<li>Remove the front position from the queue.</li>
+<li>If this is the goal, return the path.</li>
+<li>For each valid neighbor (up, down, left, right):
+<ul>
+<li>If not visited and not a wall, add to queue.</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>If queue is empty, no path exists.</li>
+</ol>
+</div>
+<div class="step-box">
+<p><strong>DFS Algorithm Steps (Iterative with Stack):</strong></p>
+<ol>
+<li>Start at the start position. Push it onto a stack.</li>
+<li>While the stack is not empty:
+<ol type="a">
+<li>Pop the top position from the stack.</li>
+<li>If this is the goal, return the path.</li>
+<li>For each valid neighbor (up, down, left, right):
+<ul>
+<li>If not visited and not a wall, push onto stack.</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>If stack is empty, no path exists.</li>
+</ol>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 3: Code</h2>
+<div class="card">
+<h3><span class="badge">3</span> Complete Python Code</h3>
+<div class="code-box">
+<pre># Lab: Maze Solver (BFS &amp; DFS)
+# Program by: [Your Name]
+# Roll no: [Your Roll No]
+
+from collections import deque
+
+# Step 1: Define the maze
+maze = [
+    ['S', 0, 0, 1, 0],
+    [1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 0],
+    [0, 0, 0, 0, 'G']
+]
+
+# Find start and goal positions
+def find_positions(maze):
+    start = None
+    goal = None
+    for i in range(len(maze)):
+        for j in range(len(maze[0])):
+            if maze[i][j] == 'S':
+                start = (i, j)
+            elif maze[i][j] == 'G':
+                goal = (i, j)
+    return start, goal
+
+# Step 2: Get valid neighbors
+def get_neighbors(maze, pos, visited):
+    rows = len(maze)
+    cols = len(maze[0])
+    r, c = pos
+    neighbors = []
+    
+    # Up, Down, Left, Right
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    
+    for dr, dc in directions:
+        nr, nc = r + dr, c + dc
+        if 0 &lt;= nr &lt; rows and 0 &lt;= nc &lt; cols:
+            if (nr, nc) not in visited:
+                if maze[nr][nc] != 1:  # Not a wall
+                    neighbors.append((nr, nc))
+    
+    return neighbors
+
+# Step 3: BFS Solver
+def bfs_solver(maze):
+    start, goal = find_positions(maze)
+    if not start or not goal:
+        return None, "Start or goal not found!"
+    
+    queue = deque([(start, [start])])
+    visited = set([start])
+    nodes_expanded = 0
+    
+    while queue:
+        current, path = queue.popleft()
+        nodes_expanded += 1
+        
+        if current == goal:
+            return path, nodes_expanded
+        
+        for neighbor in get_neighbors(maze, current, visited):
+            visited.add(neighbor)
+            queue.append((neighbor, path + [neighbor]))
+    
+    return None, nodes_expanded
+
+# Step 4: DFS Solver (Iterative)
+def dfs_solver(maze):
+    start, goal = find_positions(maze)
+    if not start or not goal:
+        return None, "Start or goal not found!"
+    
+    stack = [(start, [start])]
+    visited = set([start])
+    nodes_expanded = 0
+    
+    while stack:
+        current, path = stack.pop()
+        nodes_expanded += 1
+        
+        if current == goal:
+            return path, nodes_expanded
+        
+        for neighbor in get_neighbors(maze, current, visited):
+            visited.add(neighbor)
+            stack.append((neighbor, path + [neighbor]))
+    
+    return None, nodes_expanded
+
+# Step 5: Print the maze with path
+def print_maze_with_path(maze, path):
+    if not path:
+        print("No path found!")
+        return
+    
+    # Create a copy of the maze
+    maze_copy = []
+    for row in maze:
+        maze_copy.append(row[:])
+    
+    # Mark the path
+    for r, c in path:
+        if maze_copy[r][c] != 'S' and maze_copy[r][c] != 'G':
+            maze_copy[r][c] = '*'
+    
+    # Print the maze
+    print("Maze with Path (* = path):")
+    for row in maze_copy:
+        line = ""
+        for cell in row:
+            if cell == 1:
+                line += "█ "
+            elif cell == 0:
+                line += "· "
+            elif cell == '*':
+                line += "★ "
+            else:
+                line += str(cell) + " "
+        print(line)
+    print()
+
+# Step 6: Main function
+def solve_maze(maze):
+    print("=" * 60)
+    print("MAZE SOLVER")
+    print("=" * 60)
+    print()
+    
+    print("Original Maze:")
+    for row in maze:
+        line = ""
+        for cell in row:
+            if cell == 1:
+                line += "█ "
+            elif cell == 0:
+                line += "· "
+            else:
+                line += str(cell) + " "
+        print(line)
+    print()
+    
+    print("-" * 60)
+    print("BFS SEARCH")
+    print("-" * 60)
+    path, nodes = bfs_solver(maze)
+    if path:
+        print(f"Path found! Steps: {len(path)-1}, Nodes expanded: {nodes}")
+        print(f"Path: {' → '.join([str(p) for p in path])}")
+        print()
+        print_maze_with_path(maze, path)
+    else:
+        print(f"No path found! Nodes expanded: {nodes}")
+    
+    print("-" * 60)
+    print("DFS SEARCH")
+    print("-" * 60)
+    path, nodes = dfs_solver(maze)
+    if path:
+        print(f"Path found! Steps: {len(path)-1}, Nodes expanded: {nodes}")
+        print(f"Path: {' → '.join([str(p) for p in path])}")
+        print()
+        print_maze_with_path(maze, path)
+    else:
+        print(f"No path found! Nodes expanded: {nodes}")
+
+# Step 7: Run the solver
+solve_maze(maze)
+</pre>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 4: Expected Output</h2>
+<div class="card">
+<h3><span class="badge">4</span> Program Output</h3>
+<div class="output-box">
+<pre>============================================================
+MAZE SOLVER
+============================================================
+
+Original Maze:
+S · · █ ·
+█ █ · █ ·
+· · · · ·
+· █ █ █ ·
+· · · · G
+
+------------------------------------------------------------
+BFS SEARCH
+------------------------------------------------------------
+Path found! Steps: 10, Nodes expanded: 14
+Path: (0, 0) → (0, 1) → (0, 2) → (1, 2) → (2, 2) → (2, 3) → (2, 4) → (3, 4) → (4, 4) → (4, 3) → (4, 4)
+
+Maze with Path (* = path):
+S ★ ★ █ ·
+█ █ ★ █ ·
+· · ★ ★ ★
+· █ █ █ ★
+· · · ★ G
+
+------------------------------------------------------------
+DFS SEARCH
+------------------------------------------------------------
+Path found! Steps: 16, Nodes expanded: 20
+Path: (0, 0) → (0, 1) → (0, 2) → (1, 2) → (2, 2) → (2, 3) → (2, 4) → (3, 4) → (4, 4) → (4, 3) → (4, 2) → (4, 1) → (4, 0) → (3, 0) → (2, 0) → (2, 1) → (2, 2) → (3, 2) → (4, 2) → (4, 3) → (4, 4)
+
+Maze with Path (* = path):
+S ★ ★ █ ·
+█ █ ★ █ ·
+★ ★ ★ ★ ★
+★ █ █ █ ★
+★ ★ ★ ★ G
+</pre>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 5: Tasks</h2>
+<div class="card">
+<h3><span class="badge">5</span> Complete the Following Tasks</h3>
+<div class="step-box">
+<p><strong>Task 1:</strong> Run the code and record the output for BFS and DFS.</p>
+<p><strong>Task 2:</strong> Create your own maze (6×6) with at least 5 walls.</p>
+<p><strong>Task 3:</strong> Solve your maze using BFS and DFS. Compare results.</p>
+<p><strong>Task 4:</strong> Trace BFS on the given maze showing the queue at each step.</p>
+<p><strong>Task 5:</strong> Trace DFS on the given maze showing the stack at each step.</p>
+<p><strong>Task 6:</strong> Answer the analysis questions below.</p>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 6: Analysis Questions</h2>
+<div class="card">
+<h3><span class="badge">6</span> Answer the Following Questions</h3>
+<div class="step-box">
+<p><strong>Question 1:</strong> Which algorithm found the shorter path (fewer steps)? Why?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 2:</strong> Which algorithm expanded more nodes? Why?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 3:</strong> What data structure does BFS use? Why is it suitable for finding the shortest path?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 4:</strong> What data structure does iterative DFS use? Why is it suitable for depth-first exploration?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 5:</strong> Why is BFS preferred over DFS for finding the shortest path in a maze?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 6:</strong> What would happen if we didn't track visited nodes?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 7:</strong> What is the time complexity of BFS for a maze of size R×C?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 8:</strong> How would you modify the code to find the longest path?</p>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 7: Sample Answers (For Reference)</h2>
+<div class="card">
+<h3><span class="badge">A1</span> Question 1 Sample Answer</h3>
+<div class="step-box">
+<p>BFS found the shorter path (10 steps) compared to DFS (16 steps). BFS explores level by level, so it finds the shortest path first. DFS explores depth-first, so it may find a longer path before finding a shorter one.</p>
+</div>
+<h3><span class="badge">A2</span> Question 2 Sample Answer</h3>
+<div class="step-box">
+<p>DFS expanded more nodes (20) compared to BFS (14). DFS went deep into the maze exploring many dead ends before finding the goal. BFS explores systematically level by level.</p>
+</div>
+<h3><span class="badge">A3</span> Question 3 Sample Answer</h3>
+<div class="step-box">
+<p>BFS uses a <strong>Queue (FIFO)</strong> data structure. This ensures that nodes at the current depth are processed before nodes at the next depth, which is essential for finding the shortest path.</p>
+</div>
+<h3><span class="badge">A4</span> Question 4 Sample Answer</h3>
+<div class="step-box">
+<p>Iterative DFS uses a <strong>Stack (LIFO)</strong> data structure. This ensures that the most recently discovered node is processed next, allowing the algorithm to go deep into one branch before backtracking.</p>
+</div>
+<h3><span class="badge">A5</span> Question 5 Sample Answer</h3>
+<div class="step-box">
+<p>BFS is preferred for finding the shortest path because it explores all nodes at the current depth before moving to the next depth. The first goal node found is guaranteed to be at the shallowest depth, which is the shortest path.</p>
+</div>
+<h3><span class="badge">A6</span> Question 6 Sample Answer</h3>
+<div class="step-box">
+<p>Without tracking visited nodes, both BFS and DFS would get stuck in infinite loops because they would revisit nodes repeatedly. The algorithm would never terminate.</p>
+</div>
+<h3><span class="badge">A7</span> Question 7 Sample Answer</h3>
+<div class="step-box">
+<p><strong>Time Complexity:</strong> O(R × C) where R is the number of rows and C is the number of columns. Each cell is visited at most once.</p>
+</div>
+<h3><span class="badge">A8</span> Question 8 Sample Answer</h3>
+<div class="step-box">
+<p>To find the longest path, we would need to use a different approach. We could use DFS with backtracking to find all paths and then select the longest one, or use dynamic programming to find the longest path in a directed acyclic graph.</p>
+</div>
+</div>
+<div class="footer">
+<p>Best of luck!</p>
+<p>Remember: BFS finds the shortest path, DFS finds any path!</p>
+</div>
+</body>
+</html>
