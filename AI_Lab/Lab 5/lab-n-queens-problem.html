@@ -1,0 +1,507 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Lab: n-Queens Problem</title>
+<meta name="identifier" content="g2235c03364415cc3ab72f30d2c9662a0"/>
+<meta name="editing_roles" content="teachers"/>
+<meta name="workflow_state" content="active"/>
+</head>
+<body>
+<div class="header">
+<h1>Lab: n-Queens Problem</h1>
+<p>CSC 266: Artificial Intelligence</p>
+<p>Constraint Satisfaction Problem | Chapter 3.3</p>
+</div>
+<div class="note-box"><strong>Lab Objectives:</strong>
+<ul>
+<li>Understand the n-Queens problem as a Constraint Satisfaction Problem (CSP)</li>
+<li>Implement backtracking algorithm to solve n-Queens</li>
+<li>Visualize solutions on a chessboard</li>
+<li>Analyze time complexity and number of solutions for different n</li>
+</ul>
+</div>
+<hr>
+<h2 class="section-title">Part 1: Background</h2>
+<div class="card">
+<h3><span class="badge">1</span> What is the n-Queens Problem?</h3>
+<div class="theory-box">
+<p><strong>Definition:</strong> The n-Queens problem is the problem of placing <strong>n queens</strong> on an <strong>n × n</strong> chessboard such that <strong>no two queens attack each other</strong>.</p>
+<p><strong>Constraints (No two queens can share):</strong></p>
+<ul>
+<li><strong>Same row</strong></li>
+<li><strong>Same column</strong></li>
+<li><strong>Same diagonal</strong></li>
+</ul>
+</div>
+<div class="step-box">
+<p><strong>Example: 4-Queens</strong></p>
+<div class="board-grid">
+<div class="cell queen-cell">♛</div>
+<div class="cell queen-cell">♛</div>
+<div class="cell queen-cell">♛</div>
+<div class="cell queen-cell">♛</div>
+</div>
+<p><strong>Solution:</strong> Queens at (Row 1, Col 2), (Row 2, Col 4), (Row 3, Col 1), (Row 4, Col 3)</p>
+</div>
+<div class="theory-box">
+<p><strong>Known Solutions:</strong></p>
+<ul>
+<li><strong>4-Queens:</strong> 2 solutions</li>
+<li><strong>8-Queens:</strong> 92 solutions (12 unique)</li>
+<li><strong>10-Queens:</strong> 724 solutions</li>
+<li><strong>20-Queens:</strong> Over 3.9 billion solutions</li>
+</ul>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 2: Algorithm</h2>
+<div class="card">
+<h3><span class="badge">2</span> Backtracking Algorithm</h3>
+<div class="step-box">
+<p><strong>Algorithm Steps:</strong></p>
+<ol>
+<li>Start with an empty board and column = 0</li>
+<li>If all queens are placed (col == n), print solution</li>
+<li>For each row in the current column:
+<ol type="a">
+<li>Check if placing a queen at (row, col) is safe</li>
+<li>If safe, place queen and recursively call for next column</li>
+<li>If recursive call returns failure, remove queen (backtrack)</li>
+</ol>
+</li>
+<li>Return failure if no row works</li>
+</ol>
+</div>
+<div class="step-box">
+<p><strong>Safety Check:</strong></p>
+<ul>
+<li>Check if any queen is in the <strong>same row</strong></li>
+<li>Check if any queen is in the <strong>same diagonal</strong></li>
+<li>(No need to check same column because we place one queen per column)</li>
+</ul>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 3: Code</h2>
+<div class="card">
+<h3><span class="badge">3</span> Complete Python Code</h3>
+<div class="code-box">
+<pre># Lab: n-Queens Problem
+# Program by: [Your Name]
+# Roll no: [Your Roll No]
+
+# Step 1: Check if placing a queen is safe
+def is_safe(board, row, col, n):
+    # Check same row on left side
+    for i in range(col):
+        if board[row][i] == 1:
+            return False
+    
+    # Check upper diagonal on left side
+    i = row
+    j = col
+    while i &gt;= 0 and j &gt;= 0:
+        if board[i][j] == 1:
+            return False
+        i = i - 1
+        j = j - 1
+    
+    # Check lower diagonal on left side
+    i = row
+    j = col
+    while i &lt; n and j &gt;= 0:
+        if board[i][j] == 1:
+            return False
+        i = i + 1
+        j = j - 1
+    
+    return True
+
+# Step 2: Solve n-Queens using backtracking
+def solve_n_queens(board, col, n):
+    # If all queens are placed
+    if col &gt;= n:
+        return True
+    
+    # Try placing queen in each row of this column
+    for row in range(n):
+        if is_safe(board, row, col, n):
+            board[row][col] = 1
+            
+            # Recur to place rest of the queens
+            if solve_n_queens(board, col + 1, n):
+                return True
+            
+            # Backtrack
+            board[row][col] = 0
+    
+    return False
+
+# Step 3: Print the board
+def print_board(board, n):
+    for i in range(n):
+        for j in range(n):
+            if board[i][j] == 1:
+                print("♛", end=" ")
+            else:
+                print("·", end=" ")
+        print()
+    print()
+
+# Step 4: Count all solutions
+def count_solutions(board, col, n):
+    if col &gt;= n:
+        return 1
+    
+    count = 0
+    for row in range(n):
+        if is_safe(board, row, col, n):
+            board[row][col] = 1
+            count = count + count_solutions(board, col + 1, n)
+            board[row][col] = 0
+    
+    return count
+
+# Step 5: Find all solutions
+def find_all_solutions(board, col, n, solutions):
+    if col &gt;= n:
+        # Store a copy of the solution
+        solution = []
+        for i in range(n):
+            row_solution = []
+            for j in range(n):
+                row_solution.append(board[i][j])
+            solution.append(row_solution)
+        solutions.append(solution)
+        return
+    
+    for row in range(n):
+        if is_safe(board, row, col, n):
+            board[row][col] = 1
+            find_all_solutions(board, col + 1, n, solutions)
+            board[row][col] = 0
+
+# Step 6: Main program
+def n_queens(n):
+    print("=" * 50)
+    print(f"{n}-QUEENS PROBLEM")
+    print("=" * 50)
+    print()
+    
+    # Find one solution
+    board = [[0 for _ in range(n)] for _ in range(n)]
+    
+    print(f"Finding one solution for {n}-Queens...")
+    print()
+    
+    if solve_n_queens(board, 0, n):
+        print(f"Solution found for {n}-Queens:")
+        print_board(board, n)
+    else:
+        print(f"No solution exists for {n}-Queens")
+        return
+    
+    # Count all solutions
+    board = [[0 for _ in range(n)] for _ in range(n)]
+    total_solutions = count_solutions(board, 0, n)
+    print(f"Total solutions for {n}-Queens: {total_solutions}")
+    print()
+    
+    # Find all solutions (limit to 5 for display)
+    if n &lt;= 6:
+        board = [[0 for _ in range(n)] for _ in range(n)]
+        solutions = []
+        find_all_solutions(board, 0, n, solutions)
+        print(f"All {len(solutions)} solutions for {n}-Queens:")
+        for i, sol in enumerate(solutions):
+            print(f"Solution {i+1}:")
+            for row in sol:
+                for val in row:
+                    if val == 1:
+                        print("♛", end=" ")
+                    else:
+                        print("·", end=" ")
+                print()
+            print()
+    else:
+        print(f"Showing first 3 solutions for {n}-Queens:")
+        board = [[0 for _ in range(n)] for _ in range(n)]
+        solutions = []
+        find_all_solutions(board, 0, n, solutions)
+        for i in range(min(3, len(solutions))):
+            print(f"Solution {i+1}:")
+            for row in solutions[i]:
+                for val in row:
+                    if val == 1:
+                        print("♛", end=" ")
+                    else:
+                        print("·", end=" ")
+                print()
+            print()
+
+# Step 7: Test for different n values
+n_queens(4)
+n_queens(8)
+</pre>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 4: Expected Output</h2>
+<div class="card">
+<h3><span class="badge">4</span> Program Output</h3>
+<div class="output-box">
+<pre>==================================================
+4-QUEENS PROBLEM
+==================================================
+
+Finding one solution for 4-Queens...
+
+Solution found for 4-Queens:
+· ♛ · ·
+· · · ♛
+♛ · · ·
+· · ♛ ·
+
+Total solutions for 4-Queens: 2
+
+All 2 solutions for 4-Queens:
+Solution 1:
+· ♛ · ·
+· · · ♛
+♛ · · ·
+· · ♛ ·
+
+Solution 2:
+· · ♛ ·
+♛ · · ·
+· · · ♛
+· ♛ · ·
+
+==================================================
+8-QUEENS PROBLEM
+==================================================
+
+Finding one solution for 8-Queens...
+
+Solution found for 8-Queens:
+♛ · · · · · · ·
+· · · · ♛ · · ·
+· · · · · · · ♛
+· · · · · ♛ · ·
+· · ♛ · · · · ·
+· · · · · · ♛ ·
+· ♛ · · · · · ·
+· · · ♛ · · · ·
+
+Total solutions for 8-Queens: 92
+
+Showing first 3 solutions for 8-Queens:
+Solution 1:
+♛ · · · · · · ·
+· · · · ♛ · · ·
+· · · · · · · ♛
+· · · · · ♛ · ·
+· · ♛ · · · · ·
+· · · · · · ♛ ·
+· ♛ · · · · · ·
+· · · ♛ · · · ·
+
+Solution 2:
+♛ · · · · · · ·
+· · · · · ♛ · ·
+· · · · · · · ♛
+· · ♛ · · · · ·
+· · · · · · ♛ ·
+· · · ♛ · · · ·
+· ♛ · · · · · ·
+· · · · ♛ · · ·
+
+Solution 3:
+♛ · · · · · · ·
+· · · · · · ♛ ·
+· · · ♛ · · · ·
+· · · · · · · ♛
+· · · · ♛ · · ·
+· · ♛ · · · · ·
+· ♛ · · · · · ·
+· · · · · ♛ · ·
+</pre>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 5: Tasks</h2>
+<div class="card">
+<h3><span class="badge">5</span> Complete the Following Tasks</h3>
+<div class="step-box">
+<p><strong>Task 1:</strong> Copy and run the code. Record the output for 4-Queens.</p>
+<p><strong>Task 2:</strong> Draw the 4-Queens board on paper showing the queen positions.</p>
+<p><strong>Task 3:</strong> Trace the backtracking algorithm for 4-Queens, showing the search tree.</p>
+<p><strong>Task 4:</strong> Run the code for 5-Queens, 6-Queens, and 7-Queens. Record the number of solutions.</p>
+<p><strong>Task 5:</strong> Create a table showing: n → number of solutions.</p>
+<p><strong>Task 6:</strong> Answer the analysis questions below.</p>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 6: Analysis Questions</h2>
+<div class="card">
+<h3><span class="badge">6</span> Answer the Following Questions</h3>
+<div class="step-box">
+<p><strong>Question 1:</strong> What are the constraints in the n-Queens problem?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 2:</strong> How many solutions does 4-Queens have? Draw both solutions on a 4×4 board.</p>
+</div>
+<div class="step-box">
+<p><strong>Question 3:</strong> What is the time complexity of the backtracking algorithm for n-Queens?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 4:</strong> What is the space complexity of the n-Queens algorithm?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 5:</strong> How does the number of solutions change as n increases?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 6:</strong> Why is n-Queens considered a Constraint Satisfaction Problem (CSP)?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 7:</strong> What would happen if we used BFS or DFS without backtracking to solve n-Queens?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 8:</strong> What is the significance of the 8-Queens problem in AI?</p>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 7: Sample Answers (For Reference)</h2>
+<div class="card">
+<h3><span class="badge">A1</span> Question 1 Sample Answer</h3>
+<div class="step-box">
+<p>The constraints in the n-Queens problem are:</p>
+<ul>
+<li>No two queens can share the same <strong>row</strong></li>
+<li>No two queens can share the same <strong>column</strong></li>
+<li>No two queens can share the same <strong>diagonal</strong></li>
+</ul>
+</div>
+<h3><span class="badge">A2</span> Question 2 Sample Answer</h3>
+<div class="step-box">
+<p>4-Queens has <strong>2 solutions</strong>:</p>
+<p><strong>Solution 1:</strong> (1,2), (2,4), (3,1), (4,3)</p>
+<p><strong>Solution 2:</strong> (1,3), (2,1), (3,4), (4,2)</p>
+</div>
+<h3><span class="badge">A3</span> Question 3 Sample Answer</h3>
+<div class="step-box">
+<p><strong>Time Complexity:</strong> O(n!) in the worst case. With pruning, it is much better in practice.</p>
+</div>
+<h3><span class="badge">A4</span> Question 4 Sample Answer</h3>
+<div class="step-box">
+<p><strong>Space Complexity:</strong> O(n²) for the board or O(n) for the recursion stack.</p>
+</div>
+<h3><span class="badge">A5</span> Question 5 Sample Answer</h3>
+<div class="step-box">
+<p>The number of solutions increases rapidly:</p>
+<ul>
+<li>4-Queens: 2 solutions</li>
+<li>5-Queens: 10 solutions</li>
+<li>6-Queens: 4 solutions</li>
+<li>7-Queens: 40 solutions</li>
+<li>8-Queens: 92 solutions</li>
+</ul>
+</div>
+<h3><span class="badge">A6</span> Question 6 Sample Answer</h3>
+<div class="step-box">
+<p>n-Queens is a CSP because:</p>
+<ul>
+<li><strong>Variables:</strong> Each queen's row position</li>
+<li><strong>Domains:</strong> {1, 2, ..., n} (rows)</li>
+<li><strong>Constraints:</strong> No two queens share a row or diagonal</li>
+</ul>
+</div>
+<h3><span class="badge">A7</span> Question 7 Sample Answer</h3>
+<div class="step-box">
+<p>Without backtracking, BFS and DFS would generate all possible arrangements of queens and check each one. This would be extremely inefficient because there are n^n possible arrangements. Backtracking prunes invalid partial solutions early, making it much faster.</p>
+</div>
+<h3><span class="badge">A8</span> Question 8 Sample Answer</h3>
+<div class="step-box">
+<p>The 8-Queens problem is significant because it is a classic example of a CSP and backtracking. It demonstrates how AI can solve constraint-based problems efficiently. It is also used to benchmark search algorithms and heuristics.</p>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 8: Known Solutions Reference</h2>
+<div class="card">
+<h3><span class="badge">7</span> Number of Solutions for n-Queens</h3>
+<table>
+<tbody>
+<tr style="background: #1a3a5c; color: white;">
+<th>n</th>
+<th>Total Solutions</th>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr style="background: #f9f9f9;">
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr style="background: #f9f9f9;">
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">10</td>
+</tr>
+<tr style="background: #f9f9f9;">
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">40</td>
+</tr>
+<tr style="background: #f9f9f9;">
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">92</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">352</td>
+</tr>
+<tr style="background: #f9f9f9;">
+<td style="text-align: center;">10</td>
+<td style="text-align: center;">724</td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td style="text-align: center;">2680</td>
+</tr>
+<tr style="background: #f9f9f9;">
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">14200</td>
+</tr>
+<tr>
+<td style="text-align: center;">13</td>
+<td style="text-align: center;">73712</td>
+</tr>
+<tr style="background: #f9f9f9;">
+<td style="text-align: center;">14</td>
+<td style="text-align: center;">365596</td>
+</tr>
+<tr>
+<td style="text-align: center;">15</td>
+<td style="text-align: center;">2279184</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+<div class="footer">
+<p>Best of luck!</p>
+<p>Remember: Backtracking = Try, fail, undo, try again!</p>
+</div>
+</body>
+</html>
