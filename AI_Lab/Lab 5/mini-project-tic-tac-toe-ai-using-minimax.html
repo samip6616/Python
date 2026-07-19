@@ -1,0 +1,435 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Mini-Project: Tic-Tac-Toe AI using Minimax</title>
+<meta name="identifier" content="g104f8543100f730a33f9ea0a9b1482e8"/>
+<meta name="editing_roles" content="teachers"/>
+<meta name="workflow_state" content="active"/>
+</head>
+<body>
+<div class="header">
+<h1>🧪 Mini-Project: Tic-Tac-Toe AI using Minimax</h1>
+<p>CSC 266: Artificial Intelligence</p>
+<p>Game Playing | Chapter 3.3</p>
+</div>
+<div class="note-box"><strong>Project Objectives:</strong>
+<ul>
+<li>Apply the Minimax algorithm to a real game (Tic-Tac-Toe)</li>
+<li>Implement an AI that plays optimally (never loses)</li>
+<li>Understand how game trees are generated dynamically</li>
+<li>Evaluate utility values for terminal states</li>
+</ul>
+</div>
+<hr>
+<h2 class="section-title">Part 1: Background</h2>
+<div class="card">
+<h3><span class="badge">1</span> Tic-Tac-Toe Game</h3>
+<div class="theory-box">
+<p><strong>Game Rules:</strong></p>
+<ul>
+<li>Two players: X (MAX) and O (MIN)</li>
+<li>X plays first</li>
+<li>Players take turns placing their mark on a 3×3 board</li>
+<li>First to get 3 in a row (horizontally, vertically, or diagonally) wins</li>
+<li>If all 9 squares are filled and no winner, it's a draw</li>
+</ul>
+</div>
+<div class="theory-box">
+<p><strong>Utility Values:</strong></p>
+<ul>
+<li><strong>+1</strong> → X wins (MAX player)</li>
+<li><strong>-1</strong> → O wins (MIN player)</li>
+<li><strong>0</strong> → Draw</li>
+</ul>
+</div>
+<div class="theory-box">
+<p><strong>Minimax in Tic-Tac-Toe:</strong></p>
+<ul>
+<li>AI (X) is the MAX player – tries to maximize the score</li>
+<li>Human (O) is the MIN player – tries to minimize the score</li>
+<li>AI explores all possible moves and chooses the one with the highest minimax value</li>
+<li>With optimal play, Tic-Tac-Toe always ends in a draw</li>
+</ul>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 2: Code</h2>
+<div class="card">
+<h3><span class="badge">2</span> Complete Python Code</h3>
+<div class="code-box">
+<pre># Mini-Project: Tic-Tac-Toe AI using Minimax
+# Program by: [Your Name]
+# Roll no: [Your Roll No]
+
+# Step 1: Initialize the board
+board = [' ' for _ in range(9)]
+
+# Step 2: Display the board
+def print_board(board):
+    print()
+    for i in range(0, 9, 3):
+        print(f" {board[i]} | {board[i+1]} | {board[i+2]} ")
+        if i &lt; 6:
+            print("---+---+---")
+    print()
+
+# Step 3: Check if the game is over
+def is_winner(board, player):
+    # Winning combinations
+    win_combinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
+        [0, 4, 8], [2, 4, 6]              # Diagonals
+    ]
+    for combo in win_combinations:
+        if all(board[i] == player for i in combo):
+            return True
+    return False
+
+def is_draw(board):
+    return ' ' not in board
+
+def game_over(board):
+    return is_winner(board, 'X') or is_winner(board, 'O') or is_draw(board)
+
+# Step 4: Minimax Algorithm for Tic-Tac-Toe
+def minimax(board, is_maximizing):
+    # Base cases
+    if is_winner(board, 'X'):
+        return 1
+    elif is_winner(board, 'O'):
+        return -1
+    elif is_draw(board):
+        return 0
+    
+    if is_maximizing:
+        best = -999999
+        for i in range(9):
+            if board[i] == ' ':
+                board[i] = 'X'
+                value = minimax(board, False)
+                board[i] = ' '
+                best = max(best, value)
+        return best
+    else:
+        best = 999999
+        for i in range(9):
+            if board[i] == ' ':
+                board[i] = 'O'
+                value = minimax(board, True)
+                board[i] = ' '
+                best = min(best, value)
+        return best
+
+# Step 5: AI makes a move
+def ai_move(board):
+    best_value = -999999
+    best_move = -1
+    
+    for i in range(9):
+        if board[i] == ' ':
+            board[i] = 'X'
+            move_value = minimax(board, False)
+            board[i] = ' '
+            
+            if move_value &gt; best_value:
+                best_value = move_value
+                best_move = i
+    
+    board[best_move] = 'X'
+    return best_move
+
+# Step 6: Human makes a move
+def human_move(board):
+    while True:
+        try:
+            move = int(input("Enter your move (1-9): ")) - 1
+            if move &lt; 0 or move &gt; 8:
+                print("Invalid! Enter 1-9.")
+            elif board[move] != ' ':
+                print("That cell is already taken!")
+            else:
+                board[move] = 'O'
+                return move
+        except ValueError:
+            print("Invalid! Enter a number.")
+
+# Step 7: Main game loop
+def play_game():
+    print("=" * 50)
+    print("TIC-TAC-TOE (X = AI, O = Human)")
+    print("=" * 50)
+    print()
+    print("You are O. AI is X.")
+    print("Enter a number (1-9) to place your move:")
+    print()
+    print(" 1 | 2 | 3 ")
+    print("---+---+---")
+    print(" 4 | 5 | 6 ")
+    print("---+---+---")
+    print(" 7 | 8 | 9 ")
+    print()
+    
+    while not game_over(board):
+        print_board(board)
+        
+        # AI's turn (X)
+        print("AI is thinking...")
+        ai_move(board)
+        
+        if game_over(board):
+            break
+        
+        # Human's turn (O)
+        print_board(board)
+        human_move(board)
+    
+    # Game result
+    print_board(board)
+    if is_winner(board, 'X'):
+        print("🏆 AI wins! Better luck next time.")
+    elif is_winner(board, 'O'):
+        print("🎉 You win! Congratulations!")
+    else:
+        print("🤝 It's a draw! Good game!")
+
+# Step 8: Run the game
+play_game()
+</pre>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 3: Expected Output</h2>
+<div class="card">
+<h3><span class="badge">3</span> Sample Game Run</h3>
+<div class="output-box">
+<pre>==================================================
+TIC-TAC-TOE (X = AI, O = Human)
+==================================================
+
+You are O. AI is X.
+Enter a number (1-9) to place your move:
+
+ 1 | 2 | 3
+---+---+---
+ 4 | 5 | 6
+---+---+---
+ 7 | 8 | 9
+
+
+   |   |
+---+---+---
+   |   |
+---+---+---
+   |   |
+
+AI is thinking...
+
+ X |   |
+---+---+---
+   |   |
+---+---+---
+   |   |
+
+Enter your move (1-9): 5
+
+ X |   |
+---+---+---
+   | O |
+---+---+---
+   |   |
+
+AI is thinking...
+
+ X |   |
+---+---+---
+   | O |
+---+---+---
+   |   | X
+
+... (game continues)
+
+   |   | X
+---+---+---
+   | O | O
+---+---+---
+ X |   | X
+
+🤝 It's a draw! Good game!
+</pre>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 4: How Minimax Works in Tic-Tac-Toe</h2>
+<div class="card">
+<h3><span class="badge">4</span> Algorithm Explanation</h3>
+<div class="step-box">
+<p><strong>1. Base Cases:</strong></p>
+<ul>
+<li>If X wins → return +1</li>
+<li>If O wins → return -1</li>
+<li>If draw → return 0</li>
+</ul>
+</div>
+<div class="step-box">
+<p><strong>2. MAX Player (X):</strong></p>
+<ul>
+<li>For each empty cell, try placing X</li>
+<li>Call minimax on the new board (MIN's turn)</li>
+<li>Keep the maximum value</li>
+<li>Return the best value</li>
+</ul>
+</div>
+<div class="step-box">
+<p><strong>3. MIN Player (O):</strong></p>
+<ul>
+<li>For each empty cell, try placing O</li>
+<li>Call minimax on the new board (MAX's turn)</li>
+<li>Keep the minimum value</li>
+<li>Return the best value</li>
+</ul>
+</div>
+<div class="step-box">
+<p><strong>4. AI Move:</strong></p>
+<ul>
+<li>Try each empty cell as X</li>
+<li>Get the minimax value for each move</li>
+<li>Choose the move with the highest value</li>
+</ul>
+</div>
+<div class="theory-box">
+<p><strong>Game Tree Size:</strong></p>
+<ul>
+<li>First move: 9 possible moves</li>
+<li>Second move: 8 possible moves</li>
+<li>Total: 9! = 362,880 possible games (but many are pruned)</li>
+<li>With Alpha-Beta, it's much faster</li>
+</ul>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 5: Tasks</h2>
+<div class="card">
+<h3><span class="badge">5</span> Complete the Following Tasks</h3>
+<div class="step-box">
+<p><strong>Task 1:</strong> Copy the code and run it. Play at least 3 games against the AI.</p>
+<p><strong>Task 2:</strong> Record the output of one complete game.</p>
+<p><strong>Task 3:</strong> Draw the minimax tree for the first two moves (from empty board).</p>
+<p><strong>Task 4:</strong> Modify the code to add <strong>Alpha-Beta pruning</strong> to make the AI faster.</p>
+<p><strong>Task 5:</strong> Change the AI to play as O (human plays as X).</p>
+<p><strong>Task 6:</strong> Answer the analysis questions below.</p>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 6: Analysis Questions</h2>
+<div class="card">
+<h3><span class="badge">6</span> Answer the Following Questions</h3>
+<div class="step-box">
+<p><strong>Question 1:</strong> Why is Tic-Tac-Toe a good game to implement Minimax?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 2:</strong> What are the utility values used in this implementation? Why are they chosen?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 3:</strong> How many possible games of Tic-Tac-Toe are there? How does Minimax handle this?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 4:</strong> Did the AI ever lose? Why or why not?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 5:</strong> What would happen if we changed the utility values (e.g., +10 for win, -10 for loss)?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 6:</strong> How would you add Alpha-Beta pruning to this implementation?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 7:</strong> What is the time complexity of minimax for Tic-Tac-Toe?</p>
+</div>
+<div class="step-box">
+<p><strong>Question 8:</strong> Could this AI ever lose if you play perfectly? Why?</p>
+</div>
+</div>
+<hr>
+<h2 class="section-title">Part 7: Sample Answers (For Reference)</h2>
+<div class="card">
+<h3><span class="badge">A1</span> Question 1 Sample Answer</h3>
+<div class="step-box">
+<p>Tic-Tac-Toe is a good game to implement Minimax because:</p>
+<ul>
+<li>It has a small state space (9! = 362,880 possible games)</li>
+<li>It's easy to evaluate terminal states (win, lose, draw)</li>
+<li>It's a zero-sum game (one player's gain is the other's loss)</li>
+<li>Both players have perfect information</li>
+</ul>
+</div>
+<h3><span class="badge">A2</span> Question 2 Sample Answer</h3>
+<div class="step-box">
+<p>The utility values are:</p>
+<ul>
+<li><strong>+1</strong> for X (AI) win</li>
+<li><strong>-1</strong> for O (Human) win</li>
+<li><strong>0</strong> for Draw</li>
+</ul>
+<p>These are chosen because they are symmetrical and make the minimax calculation simple. +1 and -1 represent opposite outcomes, and 0 represents a neutral outcome.</p>
+</div>
+<h3><span class="badge">A3</span> Question 3 Sample Answer</h3>
+<div class="step-box">
+<p>There are 9! = 362,880 possible games of Tic-Tac-Toe (including invalid games that continue after a win). Minimax handles this by exploring the game tree recursively, evaluating all possible moves, and choosing the optimal one. Alpha-Beta pruning can be used to reduce the number of nodes evaluated.</p>
+</div>
+<h3><span class="badge">A4</span> Question 4 Sample Answer</h3>
+<div class="step-box">
+<p>With optimal play from both sides, Tic-Tac-Toe always ends in a draw. The AI should never lose. If the human makes a mistake, the AI will win. In my games, the AI never lost.</p>
+</div>
+<h3><span class="badge">A5</span> Question 5 Sample Answer</h3>
+<div class="step-box">
+<p>If we changed the utility values (e.g., +10 for win, -10 for loss), the minimax algorithm would still work correctly because it only cares about the relative ordering of values. The AI would still choose winning moves over drawing moves. However, the numbers would be larger, but the behavior would remain the same.</p>
+</div>
+<h3><span class="badge">A6</span> Question 6 Sample Answer</h3>
+<div class="step-box">
+<p>To add Alpha-Beta pruning:</p>
+<pre style="background: #f5f5f5; padding: 10px;">def minimax_alpha_beta(board, is_maximizing, alpha, beta):
+    # Base cases same as before
+    if is_winner(board, 'X'): return 1
+    if is_winner(board, 'O'): return -1
+    if is_draw(board): return 0
+
+    if is_maximizing:
+        best = -999999
+        for i in range(9):
+            if board[i] == ' ':
+                board[i] = 'X'
+                value = minimax_alpha_beta(board, False, alpha, beta)
+                board[i] = ' '
+                best = max(best, value)
+                alpha = max(alpha, best)
+                if beta &lt;= alpha:
+                    break  # Prune
+        return best
+    else:
+        best = 999999
+        for i in range(9):
+            if board[i] == ' ':
+                board[i] = 'O'
+                value = minimax_alpha_beta(board, True, alpha, beta)
+                board[i] = ' '
+                best = min(best, value)
+                beta = min(beta, best)
+                if beta &lt;= alpha:
+                    break  # Prune
+        return best</pre>
+</div>
+<h3><span class="badge">A7</span> Question 7 Sample Answer</h3>
+<div class="step-box">
+<p><strong>Time Complexity:</strong> O(9!) = O(362,880) in the worst case. With Alpha-Beta pruning, it is much faster.</p>
+<p><strong>Space Complexity:</strong> O(9) = O(1) for the recursion depth (maximum 9 moves).</p>
+</div>
+<h3><span class="badge">A8</span> Question 8 Sample Answer</h3>
+<div class="step-box">
+<p>No, this AI cannot lose if you play perfectly. Tic-Tac-Toe is a solved game – with optimal play from both sides, the game always ends in a draw. The minimax algorithm guarantees that the AI will never make a losing move if a better move exists.</p>
+</div>
+</div>
+<div class="footer">
+<p>&nbsp;</p>
+</div>
+</body>
+</html>
