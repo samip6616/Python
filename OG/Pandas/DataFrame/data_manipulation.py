@@ -26,6 +26,13 @@ df["Grade"] = ["B", "A", "A", "B", "C", "B", "C", "A"]
 
 print(df)
 
+#Adding New Row
+new_row = pd.DataFrame([
+    {"Name": "Sandy", "Age": 28, "Marks": 79, "Grade": "B"}
+])
+
+df = pd.concat([df, new_row], ignore_index=True)
+
 #Updating Values
 df.loc[0, "Marks"] = 88
 
