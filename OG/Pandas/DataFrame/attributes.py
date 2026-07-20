@@ -7,9 +7,9 @@ student = {
 }
 df = pd.DataFrame(student)
 
-print(df.shape)
-print(df.columns)
-print(df.index)
-print(df.dtypes)
-print(df.values)
-print(df.size)
+print(df.shape) #Number of rows and columns
+print(df.columns) #Column names
+print(df.index) #Row labels
+print(df.dtypes) #Data type of each column
+print(df.values) #NumPy array of values
+print(df.size) #Total number of elements
