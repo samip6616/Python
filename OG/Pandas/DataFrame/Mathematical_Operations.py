@@ -8,7 +8,8 @@ student = {
 
 df = pd.DataFrame(student)
 
-#MMathematical Operations
+#Mathematical Operations
+#Aggregate Functions
 print(df["Marks"].mean())
 print(df["Marks"].sum())
 print(df["Marks"].max())
