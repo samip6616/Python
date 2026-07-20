@@ -17,3 +17,28 @@ print(df["Marks"].min())
 
 #Descriptive Statistics
 print(df.describe())
+
+# Importing Data from CSV
+df = pd.read_csv("data.csv")
+
+#Basic Operations
+print(df.mean(numeric_only=True))
+print(df.sum(numeric_only=True))
+print(df.max(numeric_only=True))
+print(df.min(numeric_only=True))
+print(df.count())
+
+#Single Column Operations
+print(df["Height"].mean())
+print(df["Height"].sum())
+print(df["Height"].max())
+print(df["Height"].min())
+print(df["Type 2"].count())
+
+
+group = df.groupby("Type1")
+print(group["Height"].mean())
+print(group["Height"].sum())
+print(group["Height"].max())
+print(group["Height"].min())
+print(group["Height"].count())
