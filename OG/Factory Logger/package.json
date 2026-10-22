@@ -1,0 +1,14 @@
+{
+  "name": "structured-logger-demo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start:console": "node dist/example_app.js console",
+    "start:file": "node dist/example_app.js file"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

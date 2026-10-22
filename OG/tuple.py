@@ -1,7 +1,7 @@
 # 1. Creating Tuples
 print("1. Creating Tuples:")
 empty_tuple = ()  # Empty tuple
-single_element_tuple = (42,)  # Single element tuple
+single_element_tuple = (42,)  # Single element tuple, Requires trailing comma
 normal_tuple = (1, 2, 3, 4, 5)  # Normal tuple
 mixed_tuple = (1, "Hello", 3.14, True, [1, 2])  # Mixed data types
 
